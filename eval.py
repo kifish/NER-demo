@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #see https://github.com/chakki-works/seqeval for package installation
 #Well-tested by using the Perl script conlleval, which can be used for measuring the performance of a system that has processed the CoNLL-2000 shared task data.
 
