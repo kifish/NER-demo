@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+#vscode
+.idea
 
 .DS_Store
 Untitled.ipynb
