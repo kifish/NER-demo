@@ -8,11 +8,11 @@ from seqeval.metrics import classification_report
 def main(argv):
     y_pred = []
     y_true = []
-    with open(argv[1],encoding='utf-8') as f1:
+    with open(argv[0],encoding='utf-8') as f1:
         for line in f1:
             if line.strip():
                 y_pred.append(line.split('\t')[1])
-    with open(argv[2],encoding='utf-8') as f2:
+    with open(argv[1],encoding='utf-8') as f2:
         for line in f2:
             if line.strip():
                 y_true.append(line.split('\t')[1])
@@ -22,4 +22,5 @@ def main(argv):
         print(classification_report(y_true, y_pred, 4))
 
 if __name__ == '__main__':
-    main(sys.argv)
+    paths = ['../data/pred.txt','../data/dev.txt']
+    main(paths)
