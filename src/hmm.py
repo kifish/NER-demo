@@ -23,7 +23,7 @@ class HMM:
                 state,prob = line.strip().split('\t')
                 prob = eval(prob)
                 d[state] = prob
-        valid_d = {} # 有些状态 不可能成为初始状态;其实NER 中不一定需要用到初始状态的分布
+        valid_d = {} # 有些状态不可能成为初始状态;其实NER中, 不一定需要用到初始状态的分布
         for k,v in d.items():
             if k[0] == 'I':
                 continue
@@ -46,12 +46,11 @@ class HMM:
     def load_emit_prob(self):
         """
         在nlp序列任务中，发射概率是指在某个标注下，生成某个word的概率。
-        假设word为 会
-        则给viterbi解码是需要某label下生成word的概率值:
+        viterbi解码需要某label下生成给定word的概率值:
         P(word|B-LOC) = ...
         P(word|B-ORG) = ...
         这里有问题：
-        对于'我来到北京天安门'做NER
+        举例来说, 对'我来到北京天安门'做NER
         不进行概率平滑，由于P(word|O) 很大，且P(word|state) 很容易出现0，如果用乘法，会直接导致变为0
         导致最终的标记序列为['O','O','O','O','O','O','O','O']
         故采用 +1 平滑，见count
