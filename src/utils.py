@@ -4,6 +4,7 @@ from collections import defaultdict
 from keras.utils import to_categorical
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
+from functools import reduce
 
 def load_data_and_labels(path):
     split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')
@@ -38,6 +39,7 @@ def load_data_and_labels(path):
 def save_pred(labels):
     with open('../data/pred.txt', 'w', encoding='utf8') as f:
         x_test, _ = load_data_and_labels('../data/dev.txt')
+        x_test = reduce(lambda x,y: x + y,x_test)
         result = zip(x_test, labels)
         for item in result:
             f.write(item[0] + '\t' + item[1] + '\n')
@@ -94,6 +96,8 @@ class transformer_y():
         for y in Y:
             for tag_onehot in y:
                 tag = np.where(tag_onehot == 1) #numpy.ndarray
+                # 注意 np.where 和list.index 不一样。 前者返回的是一个tuple
+                tag = tag[0][0]
                 if tag == 0: #padding
                     continue
                 tag = self.id2tag[tag]
