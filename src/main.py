@@ -19,10 +19,11 @@ model.summary()
 
 
 # model.fit(x_train,y_train,verbose = 1,batch_size = 12,epochs= 1)
-model.fit(x_train[:1000],y_train[:1000],verbose = 1,epochs= 1)
-
 x_test, y_test = load_data_and_labels('../data/dev.txt')
 x_test = transformer_x.tran(x_test)
+y_test_onehot = transformer_y.to_onehot(y_test)
+model.fit(x_train,y_train,validation_data = (x_test,y_test_onehot),verbose = 1,epochs= 1)
+
 pred = model.predict(x_test)
 
 if use_crf:
@@ -31,9 +32,17 @@ else:
     # 直接选argmax？ 这种的肯定不如verterbi解码好。
     pass
 pred = transformer_y.to_tag(pred)
-save_pred(pred)
-
-y_test = reduce(lambda x,y : x + y,y_test)
 print(metrics.flat_f1_score(y_test, pred,
                       average='weighted', labels=transformer_y.tags))
+
+# group B and I results
+labels = transformer_y.tags
+sorted_labels = sorted(
+    labels,
+    key=lambda name: (name[1:], name[0])
+)
+print(metrics.flat_classification_report(
+    y_test, pred, labels=sorted_labels, digits=3
+))
+save_pred(pred)
 

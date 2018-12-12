@@ -36,11 +36,12 @@ def load_data_and_labels(path):
             labels.clear()
     return x,y
 
-def save_pred(labels):
+def save_pred(pred):
     with open('../data/pred.txt', 'w', encoding='utf8') as f:
         x_test, _ = load_data_and_labels('../data/dev.txt')
         x_test = reduce(lambda x,y: x + y,x_test)
-        result = zip(x_test, labels)
+        pred = reduce(lambda x,y: x + y,pred) # 2维list
+        result = zip(x_test, pred)
         for item in result:
             f.write(item[0] + '\t' + item[1] + '\n')
 
@@ -91,9 +92,9 @@ class transformer_y():
         Y = np.asarray(Y)
         return Y
     def to_tag(self,Y):
-        # Y = [self.id2tag[tag_onehot.index(1)] for y in Y for tag_onehot in y] # 返回1维序列,还需要clear padding
         res = []
         for y in Y:
+            seq_tag = []
             for tag_onehot in y:
                 tag = np.where(tag_onehot == 1) #numpy.ndarray
                 # 注意 np.where 和list.index 不一样。 前者返回的是一个tuple
@@ -101,7 +102,8 @@ class transformer_y():
                 if tag == 0: #padding
                     continue
                 tag = self.id2tag[tag]
-                res.append(tag)
+                seq_tag.append(tag)
+            res.append(seq_tag)
         return res
 
 

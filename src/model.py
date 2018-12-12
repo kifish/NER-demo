@@ -69,6 +69,7 @@ class BiLSTM_crf(object):
         #如果在TensorFlow里面还需要把z flat之后再进fc_layer
         ## applies fully-connected operation at every timestep
         # fc = Dense(self.fc_dim, activation='tanh', name='time_distributed_fc_layer')(z)
+        # 没有TimeDistributed 没法配合crf
         #fc_layer 再接一个softmax就可以得到句子中每个词的tag的概率分布，然后对每个词取概率最大的tag/或者用viterbi取概率最大的tag序列
         # 以上的两种方法，显然是不如crf，因为crf还考虑到了句子中tag序列。
         if self.use_crf:
@@ -78,6 +79,7 @@ class BiLSTM_crf(object):
             model = Model(inputs = inputs, outputs = output)
             if metrics == ['accuracy']:
                 metrics = [crf.accuracy]
+            # 改成crf.accuracy 之后会导致倾向于预测成O
             model.compile(loss = loss,optimizer = self.optimizer,metrics = metrics)
         else:
             loss = 'categorical_crossentropy' #交叉熵
