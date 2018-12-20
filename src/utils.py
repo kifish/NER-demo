@@ -36,8 +36,8 @@ def load_data_and_labels(path):
             labels.clear()
     return x,y
 
-def save_pred(pred):
-    with open('../data/pred.txt', 'w', encoding='utf8') as f:
+def save_pred(pred,save_path = '../data/pred.txt'):
+    with open(save_path, 'w', encoding='utf8') as f:
         x_test, _ = load_data_and_labels('../data/dev.txt')
         x_test = reduce(lambda x,y: x + y,x_test)
         pred = reduce(lambda x,y: x + y,pred) # 2维list

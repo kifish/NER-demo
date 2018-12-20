@@ -6,8 +6,8 @@ from keras_contrib.layers import CRF
 class BiLSTM_crf(object):
     def __init__(self,
                  num_labels,
-                 word_vocab_size,
                  max_seq_len,
+                 word_vocab_size=None,
                  char_vocab_size=None,
                  word_embedding_dim=100,
                  char_embedding_dim=25,
@@ -51,11 +51,20 @@ class BiLSTM_crf(object):
     def build(self,metrics = ['accuracy']):
         word_id = Input(shape=(self.max_seq_len,), dtype='int32', name='word_input') # 输入是一个句子，该句子经过padding处理后是定长的 self.max_seq_len ,句子不是word的序列而是word_id的序列
         inputs = [word_id] # 之后可以append char2id;不过中文没有char2id
-        word_embedding = Embedding(input_dim = self.word_vocab_size,  \
-                                   output_dim = self.word_embedding_dim, \
-                                   mask_zero= True,  \
-                                   input_length = self.max_seq_len,
-                                   name= 'word_embedding')(word_id)
+        if self.embedding_matrix is None:
+            word_embedding = Embedding(input_dim = self.word_vocab_size,  \
+                                       output_dim = self.word_embedding_dim, \
+                                       mask_zero= True,  \
+                                       input_length = self.max_seq_len,
+                                       name= 'word_embedding')(word_id)
+        else:
+            word_embedding = Embedding(input_dim=self.embedding_matrix.shape[0], \
+                                        output_dim=self.embedding_matrix.shape[1], \
+                                        mask_zero=True, \
+                                        weights=[self.embedding_matrix],
+                                       input_length=self.max_seq_len,
+                                       trainable = True,
+                                        name='word_embedding')(word_id)
         # input_dim 词表大小; output_dim 词向量维度大小
         #在TensorFlow中 Embedding层就相当于一个二维矩阵，行数即词表大小，列数即词向量维度大小，并配合lookup
         #假设输入的句子有10个word，则输出为10*word_embedding_dim,即一个二维矩阵

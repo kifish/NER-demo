@@ -1,9 +1,6 @@
 from src.model import BiLSTM_crf
 from src.utils import load_data_and_labels,save_pred,transformer_x,transformer_y
 from sklearn_crfsuite import metrics
-from seqeval.metrics import classification_report
-
-from functools import reduce
 
 x_train, y_train = load_data_and_labels('../data/train.txt')
 transformer_x = transformer_x()
