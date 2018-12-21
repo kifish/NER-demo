@@ -36,6 +36,6 @@ def pretrain_wv():
     seqs = [seq for text in texts for seq in text]  # 也可以改成generator
     model = Word2Vec(size=100, window=5, min_count=1, workers=4)
     model.build_vocab(seqs)
-    model.train(seqs,total_examples=model.corpus_count,epochs = 1)
+    model.train(seqs,total_examples=model.corpus_count,epochs = 15)
     model.wv.save_word2vec_format('../data/word2vec.txt',binary=False)
 pretrain_wv()
