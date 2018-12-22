@@ -1,45 +1,45 @@
-# %matplotlib inline
-import matplotlib.pyplot as plt
-plt.style.use('ggplot')
-import sklearn_crfsuite
-from itertools import chain
-import nltk
-import sklearn
-import scipy.stats
-from sklearn.metrics import make_scorer
-from sklearn.cross_validation import cross_val_score
-from sklearn.grid_search import RandomizedSearchCV
 import re
-import sklearn_crfsuite
-from sklearn_crfsuite import scorers
-from sklearn_crfsuite import metrics
+from pyhanlp import *
 
-# %%time
 def get_sents(path):
-    #'./data/train.txt';'./data/dev.txt'
+    #'../data/train.txt';'../data/dev.txt'
     sentences = []
     sentence = []
     cnt = 0
-    split_pattern = re.compile(r',|\.|;|，|。|；') #.要转义，不然表示的是通配符
+    split_pattern = re.compile(r',|\.|;|，|。|；|\?|\!|\.\.\.\.\.\.|……')
     with open(path,'r',encoding = 'utf8') as f:
         for line in f.readlines():#每行为一个字符和其tag，中间用tab隔开
             line = line.strip().split('\t')
-            try:
-                if(not line or len(line) < 2): continue
-            except:
-                print(line)
-            if(cnt > 100):break
-            word = (line[0],line[1])
-            if split_pattern.match(word[0]):
-                sentence.append(word)
+            if(not line or len(line) < 2): continue
+            word_unit = [line[0],line[1]]
+            if split_pattern.match(word_unit[0]):
+                sentence.append(word_unit)
+                sent = ''.join((word_unit[0] for word_unit in sentence))
+                nature_list = []
+                for term in HanLP.segment(sent):
+                    for i in range(len(term.word)):# 分词
+                        nature = '{}'.format(term.nature)
+                        nature_list.append(nature)
+                for idx,word_unit in enumerate(sentence):
+                    word_unit.insert(1,nature_list[idx]) # insert损失一些性能
                 sentences.append(sentence.copy())
                 sentence.clear()
             else:
-                sentence.append(word)
+                sentence.append(word_unit)
         if(len(sentence)):
+            sent = ''.join((word_unit[0] for word_unit in sentence))
+            nature_list = []
+            for term in HanLP.segment(sent):
+                for i in range(len(term.word)):  # 分词
+                    nature = '{}'.format(term.nature)
+                    nature_list.append(nature)
+            for idx, word_unit in enumerate(sentence):
+                word_unit.insert(1, nature_list[idx])  # insert损失一些性能
             sentences.append(sentence.copy())
             sentence.clear()
-        cnt += 1
     return sentences
-sentences = get_sents('./data/train.txt')
-print(len(sentences))
+
+train_sentences = get_sents('../data/train.txt')
+print(len(train_sentences))
+print(train_sentences[0])
+
