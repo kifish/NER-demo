@@ -140,7 +140,7 @@ class HMM:
         # '../data/train.txt';'../data/dev.txt'
         sentences = []
         sentence = []
-        split_pattern = re.compile(r',|\.|;|，|。|；')  # .要转义，不然表示的是通配符
+        split_pattern = re.compile(r',|\.|;|，|。|；|\?|\!|\.\.\.\.\.\.|……')  # .要转义，不然表示的是通配符
         with open(path, 'r', encoding='utf8') as f:
             for line in f.readlines():  # 每行为一个字符和其tag，中间用tab隔开
                 line = line.strip().split('\t')

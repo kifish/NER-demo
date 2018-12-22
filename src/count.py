@@ -4,35 +4,10 @@ from collections import defaultdict
 import sys
 hidden_states = ['B-LOC', 'B-ORG', 'B-PER', 'I-PER', 'I-ORG', 'I-LOC','O']
 
-def gen_initial_vec(hidden_states):
-    d = {state : 0 for state in hidden_states}
-    word_cnt = 0 # 一个字符算一个word
-    with open("../data/train.txt") as f:
-        for line in f.readlines():
-            word_and_tag = line.strip().split('\t')
-            if(len(word_and_tag) <= 1):
-                continue
-            tag = word_and_tag[1]
-            if tag == 'OO': # 把'OO' 归成 'O'
-                tag = 'O'
-            d[tag] += 1
-            word_cnt += 1
-    for state,cnt in d.items():
-        d[state] = cnt / word_cnt
-    with open("../data/initial_vector.txt",'w',encoding = 'utf8') as f:
-        for state,fre in d.items():
-            f.write(state + '\t' + str(fre)+ '\n')
-    path = os.path.abspath('../data/initial_vector.txt')
-    print("generated initial_vector saved in " + path)
-
-
-
 def get_sents(path):
-    #'../data/train.txt';'../data/dev.txt'
     sentences = []
     sentence = []
-    cnt = 0
-    split_pattern = re.compile(r',|\.|;|，|。|；') #.要转义，不然表示的是通配符
+    split_pattern = re.compile(r',|\.|;|，|。|；|\?|\!|\.\.\.\.\.\.|……') #.要转义，不然表示的是通配符
     with open(path,'r',encoding = 'utf8') as f:
         for line in f.readlines():#每行为一个字符和其tag，中间用tab隔开
             line = line.strip().split('\t')
@@ -50,8 +25,25 @@ def get_sents(path):
     return sentences
 
 
+def gen_initial_vec(hidden_states):
+    d = {state : 0 for state in hidden_states}
+    sents = get_sents("../data/train.txt")
+    for sent in sents:
+        word_and_tag = sent[0] #每个句子的第一个word
+        word, tag = word_and_tag
+        if tag == 'OO':  # 把'OO' 归成 'O'
+            tag = 'O'
+        d[tag] += 1
+    total_cnt = sum(d.values())
+    for state,cnt in d.items():
+        d[state] = cnt / total_cnt
+    with open("../data/initial_vector.txt",'w',encoding = 'utf8') as f:
+        for state,fre in d.items():
+            f.write(state + '\t' + str(fre)+ '\n')
+    path = os.path.abspath('../data/initial_vector.txt')
+    print("generated initial_vector saved in " + path)
 
-def gen_tran_prob(hidden_states, ratio = 0.2):
+def gen_tran_prob(hidden_states, ratio = None):
     """
     由于OO转移的概率相较于其他状态转移概率非常非常高，导致非常容易出现
     ['O','O','O','O','O','O','O','O',......]
@@ -77,12 +69,13 @@ def gen_tran_prob(hidden_states, ratio = 0.2):
         if v > 0:
             valid_d[k] = v / tran_cnt
 
-    valid_d['O->O'] = ratio #压制,劫富济贫,概率再分配
-    left = 1 - ratio
-    for k, v in valid_d.items():
-        if k == 'O->O':
-            continue
-        valid_d[k] = v / left
+    if ratio:
+        valid_d['O->O'] = ratio #压制,劫富济贫,概率再分配
+        left = 1 - ratio
+        for k, v in valid_d.items():
+            if k == 'O->O':
+                continue
+            valid_d[k] = v / left
 
     with open("../data/tran_with_offset.txt",'w',encoding = 'utf8') as f:
         for k,v in valid_d.items():
