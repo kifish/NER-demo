@@ -2,6 +2,7 @@
 
 ### CPU 
 ```
+python3.6 or python3.5
 pip install git+https://www.github.com/keras-team/keras-contrib.git
 pip install -r requirements.txt
 ```
@@ -9,6 +10,7 @@ pip install -r requirements.txt
 ### GPU
 To do   
 ```
+python3.5
 不要用 pip install -r requirements.txt
 先装tensorflow-gpu 再装对应的keras，再装keras-contrib
 环境配置
