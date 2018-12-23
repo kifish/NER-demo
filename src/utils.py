@@ -1,9 +1,11 @@
-import re
+import re,os
 from collections import defaultdict
 from keras.utils import to_categorical
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 from functools import reduce
+from sklearn_crfsuite import metrics
+from seqeval.metrics import classification_report
 
 def load_data_and_labels(path):
     split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')
@@ -38,10 +40,12 @@ def load_data_and_labels(path):
 def load_data(path):
     split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')
     x = []
+    raw = []
     seq_max_len = 99 # 有些句子非常长,设定最长句子为100
     with open(path,'r',encoding = 'utf8') as f:
         for line in f.readlines():
             line = line.strip()
+            raw.append(line)
             seqs = []
             seq = []
             for word in line:
@@ -54,17 +58,44 @@ def load_data(path):
             if(len(seq)):
                 seqs.append(seq)
             x.append(seqs)
+    with open(os.path.join(os.path.dirname(path),'processed_test.txt'),'w',encoding='utf8') as f:
+        for line in raw:
+            for ch in line:
+                f.write(ch + '\n')
+            f.write('\n')
+
     return x
 
 
-def save_pred(pred,save_path = '../data/pred.txt'):
-    with open(save_path, 'w', encoding='utf8') as f:
-        x_test, _ = load_data_and_labels('../data/dev.txt')
-        x_test = reduce(lambda x,y: x + y,x_test)
-        pred = reduce(lambda x,y: x + y,pred) # 2维list
-        result = zip(x_test, pred)
-        for item in result:
-            f.write(item[0] + '\t' + item[1] + '\n')
+
+def load_processed_data(path = '../data/processed_test.txt'):
+    x = []
+    with open(path,'r',encoding='utf8') as f:
+        for line in f.readlines():
+            x.append(line.strip())
+    return x
+
+def save_pred(pred,save_path = '../data/val_pred.txt',for_validation = True):
+    if for_validation:
+        with open(save_path, 'w', encoding='utf8') as f:
+            x_val, _ = load_data_and_labels('../data/dev.txt')
+            x_val = reduce(lambda x,y: x + y,x_val)
+            pred = reduce(lambda x,y: x + y,pred) # 2维list
+            result = zip(x_val, pred)
+            for item in result:
+                f.write(item[0] + '\t' + item[1] + '\n')
+    else: # save pred for test data
+        with open(save_path, 'w', encoding='utf8') as f:
+            x_test = load_processed_data()
+            pred = reduce(lambda x,y: x + y,pred) # 2维list/tuple
+            idx2 = 0
+            for idx1 in range(len(x_test)):
+                if x_test[idx1] == '':
+                    f.write('\n')
+                else:
+                    f.write(x_test[idx1] + '\t' + pred[idx2] + '\n') # 为了保留空行
+                    idx2 += 1
+
 
 class transformer_x():
     def __init__(self):
@@ -127,29 +158,32 @@ class transformer_y():
             res.append(seq_tag)
         return res
 
+def eval(y_test,pred):
+    labels = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER']
+    sorted_labels = sorted(
+        labels,
+        key=lambda name: (name[1:], name[0])
+    )
+    print(metrics.flat_classification_report(
+        y_test, pred, labels=sorted_labels, digits=3
+    ))
+
+    y_test = reduce(lambda x,y:x + y,y_test)
+    pred = reduce(lambda x,y: x + y, pred) #pred内部是tuple
+    pred = list(pred)
+    print(classification_report(y_test,pred,digits = 4)) #只接受list
 
 if __name__ == '__main__':
-    x_train, y_train = load_data_and_labels('../data/train.txt')
-    # x_test, y_test = load_data_and_labels('../data/dev.txt')
-    # max_idx = 0
-    # for idx,seq in enumerate(x_train):
-    #     if len(seq) > len(x_train[max_idx]):
-    #         max_idx = idx
-    # print(x_train[max_idx])
-    # #有些句子特别长
-    # from collections import defaultdict
-    # d = defaultdict(int)
-    # for seq in x_train:
-    #     d[len(seq)] += 1
-    # print(d)
+    # x_train, y_train = load_data_and_labels('../data/train.txt')
+    # x_train_sub = x_train[:3]
+    # transformer_x = transformer_x()
+    # print(transformer_x.fit(x_train_sub))
+    # y_train_sub = y_train[:3]
+    # transformer_y = transformer_y(transformer_x.max_len)
+    # print(transformer_y.to_onehot(y_train_sub))
 
-    x_train_sub = x_train[:3]
-    transformer_x = transformer_x()
-    print(transformer_x.fit(x_train_sub))
-    y_train_sub = y_train[:3]
-    transformer_y = transformer_y(transformer_x.max_len)
-    print(transformer_y.to_onehot(y_train_sub))
+    # pred = [('O','O'),('O','O')]
+    # save_pred(pred,save_path = '../data/pred.txt',for_validation = False)
 
 
-
-
+    _ = load_data('../data/test.txt')

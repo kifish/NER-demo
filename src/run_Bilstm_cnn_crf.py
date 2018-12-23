@@ -1,8 +1,10 @@
-import numpy as np
 import os
-from src.model import BiLSTM_cnn_crf
-from src.utils import load_data_and_labels,save_pred,transformer_x,transformer_y
-from sklearn_crfsuite import metrics
+import numpy as np
+from model import BiLSTM_cnn_crf
+import utils
+from utils import load_data_and_labels,load_data,save_pred,transformer_x,transformer_y
+
+os.environ["CUDA_VISIBLE_DEVICES"]="-1" # just use cpu
 
 # load word2vec
 word2vec = {}
@@ -36,27 +38,20 @@ model = BiLSTM_cnn_crf(num_labels=8,embedding_matrix =embedding_matrix ,max_seq_
 model = model.build()
 model.summary()
 
-x_test, y_test = load_data_and_labels('../data/dev.txt')
-x_test = transformer_x.tran(x_test)
-y_test_onehot = transformer_y.to_onehot(y_test)
-model.fit(x_train,y_train,validation_data = (x_test,y_test_onehot),verbose = 1,batch_size = 12,epochs= 15)
+x_val, y_val = load_data_and_labels('../data/dev.txt')
+x_val = transformer_x.tran(x_val)
+y_val_onehot = transformer_y.to_onehot(y_val)
+model.fit(x_train,y_train,validation_data = (x_val,y_val_onehot),verbose = 2,batch_size = 12,epochs= 15)
 
-pred = model.predict(x_test)
-pred = transformer_y.to_tag(pred)
-print(metrics.flat_f1_score(y_test, pred,
-                      average='weighted', labels=transformer_y.tags))
+y_pred = model.predict(x_val)
+y_pred = transformer_y.to_tag(y_pred)
 
-# group B and I results
-labels = transformer_y.tags
-sorted_labels = sorted(
-    labels,
-    key=lambda name: (name[1:], name[0])
-)
-print(metrics.flat_classification_report(
-    y_test, pred, labels=sorted_labels, digits=3
-))
+utils.eval(y_val,y_pred)
 
-os.mkdir('../data/pretrain_embedding_cnn')
+x_test = load_data('../data/test.txt')
+
+
+if not os.path.exists('../data/pretrain_embedding_cnn'):
+    os.mkdir('../data/pretrain_embedding_cnn')
 save_path = '../data/pretrain_embedding_cnn/pred.txt'
 save_pred(pred,save_path)
-
