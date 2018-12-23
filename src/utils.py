@@ -1,4 +1,3 @@
-# from anago.utils import load_data_and_labels  #这里是靠空行来切割句子的，这会导致句子过于长。
 import re
 from collections import defaultdict
 from keras.utils import to_categorical
@@ -35,6 +34,28 @@ def load_data_and_labels(path):
             y.append(labels.copy())
             labels.clear()
     return x,y
+
+def load_data(path):
+    split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')
+    x = []
+    seq_max_len = 99 # 有些句子非常长,设定最长句子为100
+    with open(path,'r',encoding = 'utf8') as f:
+        for line in f.readlines():
+            line = line.strip()
+            seqs = []
+            seq = []
+            for word in line:
+                if split_pattern.match(word) or len(seq) == seq_max_len:
+                    seq.append(word)
+                    seqs.append(seq)
+                    seq = []
+                else:
+                    seq.append(word)
+            if(len(seq)):
+                seqs.append(seq)
+            x.append(seqs)
+    return x
+
 
 def save_pred(pred,save_path = '../data/pred.txt'):
     with open(save_path, 'w', encoding='utf8') as f:
