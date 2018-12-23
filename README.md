@@ -9,6 +9,8 @@ pip install -r requirements.txt
 ### GPU
 To do   
 ```
+不要用 pip install -r requirements.txt
+先装tensorflow-gpu 再装对应的keras，再装keras-contrib
 环境配置
 https://zhuanlan.zhihu.com/p/37924625
 https://medium.com/@WhoYoung99/2018%E6%9C%80%E6%96%B0win10%E5%AE%89%E8%A3%9Dtensorflow-gpu-keras-8b3f8652509a
