@@ -56,10 +56,14 @@ class BiLSTM(object):
         model.compile(loss = loss,optimizer = self.optimizer,metrics = metrics)
         return model
 class Viterbi(object):
-    def __init__(self):
+    def __init__(self,use_offset = False):
         # 从语料中统计得到
         self.trans_prob = {}
-        with open('../data/tran.txt','r',encoding= 'utf8') as f:
+        if use_offset:
+            path = '../data/tran_with_offset.txt'
+        else:
+            path = '../data/tran.txt'
+        with open(path,'r',encoding= 'utf8') as f:
             for line in f.readlines():
                 tran,prob = line.strip().split('\t')
                 prob = eval(prob)
