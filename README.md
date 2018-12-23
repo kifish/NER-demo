@@ -16,8 +16,10 @@ https://github.com/kifish/NER-demo/tree/BiLSTM-crf
 
 
 ## Experiment
-pip install -r requirements.txt (according to the branch)   
-(use to install keras-contrib)    
+#### Environment
+python3.6 (maybe python3.5.3 will work)      
+pip install -r requirements.txt (according to the branch)      
+(use to install keras-contrib)     
 
 ## Result
 
