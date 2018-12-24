@@ -42,7 +42,7 @@ def load_data(path):
     x = []
     raw = []
     seq_max_len = 99 # 有些句子非常长,设定最长句子为100
-    with open(path,'r',encoding = 'utf8') as f:
+    with open(path,'r',encoding = 'utf8') as f: #这里是按行来分割的。
         for line in f.readlines():
             line = line.strip()
             raw.append(line)
@@ -58,15 +58,13 @@ def load_data(path):
             if(len(seq)):
                 seqs.append(seq)
             x.append(seqs)
+    x = [seq for line in x for seq in line] # 简单按句子来分割，一个句子即一个样本
     with open(os.path.join(os.path.dirname(path),'processed_test.txt'),'w',encoding='utf8') as f:
         for line in raw:
             for ch in line:
                 f.write(ch + '\n')
             f.write('\n')
-
     return x
-
-
 
 def load_processed_data(path = '../data/processed_test.txt'):
     x = []
@@ -151,8 +149,9 @@ class transformer_y():
                 tag = np.where(tag_onehot == 1) #numpy.ndarray
                 # 注意 np.where 和list.index 不一样。 前者返回的是一个tuple
                 tag = tag[0][0]
-                if tag == 0: #padding
-                    continue
+                # if tag == 0: #padding
+                #     continue #continue
+                # 就目前实现来说，不用mask_zero = True话，这里是不能continue的，因为model确实在极限情况下有可能预测错误，把某个词预测为padding类。这样会导致最后维度不匹配，没法计算metric
                 tag = self.id2tag[tag]
                 seq_tag.append(tag)
             res.append(seq_tag)
@@ -185,5 +184,9 @@ if __name__ == '__main__':
     # pred = [('O','O'),('O','O')]
     # save_pred(pred,save_path = '../data/pred.txt',for_validation = False)
 
-
-    _ = load_data('../data/test.txt')
+    x_train, y_train = load_data_and_labels('../data/train.txt')
+    transformer_x = transformer_x()
+    x_train = transformer_x.fit(x_train)
+    x_test = load_data('../data/test.txt')
+    x_test_len = list(map(len, x_test))
+    x_test = transformer_x.tran(x_test)
