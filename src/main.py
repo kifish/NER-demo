@@ -19,6 +19,9 @@ x_val = transformer_x.tran(x_val)
 y_val_onehot = transformer_y.to_onehot(y_val)
 model.fit(x_train,y_train,validation_data = (x_val,y_val_onehot),verbose = 1,epochs= 15)
 
+
+
+
 decoder = Viterbi()
 tags = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER', 'O']
 
