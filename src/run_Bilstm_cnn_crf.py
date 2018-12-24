@@ -39,18 +39,24 @@ model = model.build()
 model.summary()
 
 x_val, y_val = load_data_and_labels('../data/dev.txt')
+x_val_len = list(map(len,x_val))
 x_val = transformer_x.tran(x_val)
 y_val_onehot = transformer_y.to_onehot(y_val)
-model.fit(x_train,y_train,validation_data = (x_val,y_val_onehot),verbose = 2,batch_size = 12,epochs= 15)
+model.fit(x_train[:10],y_train[:10],validation_data = (x_val[:10],y_val_onehot[:10]),verbose = 1,batch_size = 12,epochs= 1)
 
 y_pred = model.predict(x_val)
+y_pred = [seq[-x_val_len[idx]:] for idx, seq in enumerate(y_pred)] # safely de-padding
 y_pred = transformer_y.to_tag(y_pred)
 
 utils.eval(y_val,y_pred)
 
 x_test = load_data('../data/test.txt')
+x_test_len = list(map(len,x_test))
 
-
+x_test = transformer_x.tran(x_test)
+pred = model.predict(x_test)
+pred = [seq[-x_test_len[idx]:] for idx, seq in enumerate(pred)]
+pred = transformer_y.to_tag(pred)
 if not os.path.exists('../data/pretrain_embedding_cnn'):
     os.mkdir('../data/pretrain_embedding_cnn')
 save_path = '../data/pretrain_embedding_cnn/pred.txt'
