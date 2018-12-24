@@ -10,7 +10,33 @@ vocab_size = transformer_x.vocab_size
 transformer_y = transformer_y(transformer_x.max_len)
 y_train = transformer_y.to_onehot(y_train)
 
-model = BiLSTM(num_labels = 8,max_seq_len = transformer_x.max_len,word_vocab_size = vocab_size)
+use_pretrain_embedding = True
+if use_pretrain_embedding:
+    # load word2vec
+    word2vec = {}
+    with open('../data/word2vec.txt', 'r', encoding='utf8') as f:
+        f.readline()  # 第一行是word数量以及embedding size;跳过
+        for line in f.readlines():
+            values = line.split()
+            word = values[0]
+            vec = np.asarray(values[1:], dtype='float32')
+            word2vec[word] = vec
+
+    print('Found %s word vectors.' % len(word2vec))
+
+    # init embedding_layer
+    EMBEDDING_DIM = 100
+    embedding_matrix = np.zeros((vocab_size, EMBEDDING_DIM))
+    word2id = transformer_x.word2id
+    for word, vec in word2vec.items():
+        if word in word2id:
+            embedding_matrix[word2id[word]] = word2vec[word]
+
+    model = BiLSTM(num_labels=8, embedding_matrix=embedding_matrix, max_seq_len=transformer_x.max_len)
+
+else:
+    model = BiLSTM(num_labels = 8,max_seq_len = transformer_x.max_len,word_vocab_size = vocab_size)
+
 model = model.build()
 model.summary()
 
@@ -19,9 +45,7 @@ x_val = transformer_x.tran(x_val)
 y_val_onehot = transformer_y.to_onehot(y_val)
 model.fit(x_train,y_train,validation_data = (x_val,y_val_onehot),verbose = 1,epochs= 15)
 
-
-
-
+# decode
 decoder = Viterbi()
 tags = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER', 'O']
 
