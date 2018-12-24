@@ -46,7 +46,10 @@ y_val_onehot = transformer_y.to_onehot(y_val)
 model.fit(x_train,y_train,validation_data = (x_val,y_val_onehot),verbose = 1,epochs= 15)
 
 # decode
-decoder = Viterbi()
+use_offset = True
+if use_offset:
+    print('use tran_with_offset')
+decoder = Viterbi(use_offset)
 tags = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER', 'O']
 
 y_pred_raw = model.predict(x_val)

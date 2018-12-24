@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # model = model.build()
     # model.summary()
 
-    decoder = Viterbi()
+    decoder = Viterbi(True)
     nodes = [{'B-LOC':0.1,'B-PER':0.1,'B-ORG':0.1,'I-LOC':0.1,'I-PER':0.1,'I-ORG':0.1,'O':0.4},{'B-LOC':0.1,'B-PER':0.1,'B-ORG':0.1,'I-LOC':0.1,'I-PER':0.1,'I-ORG':0.1,'O':0.4}]
     print(decoder.viterbi(nodes))
 
