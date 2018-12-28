@@ -21,8 +21,10 @@ python3.6 (maybe python3.5.3 will work)
 pip install -r requirements.txt (according to the branch)      
 (use to install keras-contrib)     
 
+see the report
 ## Result
-
+see the report
 
 
 ## Analysis
+see the report
