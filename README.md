@@ -29,4 +29,9 @@ pip install tensorflow-gpu==1.3.0
 然而这个版本适配的keras 与 keras-contrib（最新版本不兼容），得安装兼容版本的 keras-contrib才能用CRF layer。
 ```
 
-python 
+### Run
+```
+cd src
+python run_Bilstm_cnn_crf.py
+```
+修改model.py 和 run_Bilstm_cnn_crf.py中相应变量的值，即可修改模型参数和超参数。
