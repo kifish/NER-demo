@@ -84,7 +84,7 @@ class Viterbi(object):
                 for path in paths_.keys():
                     pre_node_label = path[-1]
                     if pre_node_label + '->' + label in self.trans_prob.keys():
-                        # 把概率相乘等价地转化为相加;(table,)的写法更robust
+                        # 把概率相乘等价地转化为相加;(label,)的写法更robust
                         nows[path+(label,)]= paths_[path] + self.trans_prob[path[-1] + '->' + label] + nodes[node_idx][label]
                 k = np.argmax(list(nows.values()))
                 paths[list(nows.keys())[k]] = list(nows.values())[k]
