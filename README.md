@@ -14,6 +14,9 @@ https://github.com/kifish/NER-demo/tree/BiLSTM-crf
 5.BiLSTM-CNN-CRF   
 https://github.com/kifish/NER-demo/tree/BiLSTM-crf  
 
+### See more
+http://nlpprogress.com/english/named_entity_recognition.html
+
 
 ## Experiment
 #### Environment
