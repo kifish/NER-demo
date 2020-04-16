@@ -20,7 +20,7 @@ http://nlpprogress.com/english/named_entity_recognition.html
 
 ## Experiment
 #### Environment
-python3.6 (maybe python3.5.3 will work)      
+python3.6 (maybe python3.5.3 works)      
 pip install -r requirements.txt (according to the branch)      
 (use pip install git+https://www.github.com/keras-team/keras-contrib.git to install keras-contrib)     
 
