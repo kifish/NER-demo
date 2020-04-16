@@ -12,7 +12,7 @@ https://github.com/kifish/NER-demo/tree/BiLSTM-viterbi
 4.BiLSTM-CRF  
 https://github.com/kifish/NER-demo/tree/BiLSTM-crf  
 5.BiLSTM-CNN-CRF   
-https://github.com/kifish/NER-demo/tree/BiLSTM-crf  
+https://github.com/kifish/NER-demo/tree/BiLSTM-cnn-crf  
 
 ### See more
 http://nlpprogress.com/english/named_entity_recognition.html
