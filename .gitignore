@@ -3,10 +3,12 @@
 
 /log/
 
-./models/
+
+models
+records
 
 
-
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
