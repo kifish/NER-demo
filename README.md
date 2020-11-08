@@ -14,9 +14,9 @@ https://github.com/kifish/NER-demo/tree/BiLSTM-crf
 5.BiLSTM-CNN-CRF   
 https://github.com/kifish/NER-demo/tree/BiLSTM-cnn-crf  
 Update:        
-6.BERT-Softmax
+6.BERT-Softmax               
 https://github.com/kifish/NER-demo/tree/bert         
-7.BERT-CRF
+7.BERT-CRF              
 https://github.com/kifish/NER-demo/tree/bert
 
 
