@@ -80,7 +80,7 @@ def load_data(path):
 
 
 
-
+# 中文NER; 目前不支持英文NER, 因为英文NER需要考虑tokenization
 class TagEncoder():
     def __init__(self, max_len = 100):
         self.max_seq_len = max_len # 不包括CLS和SEP
@@ -116,10 +116,9 @@ class TagEncoder():
         seq = []
         for tag in y: 
             seq.append(self.tag2id.get(tag, 7))
-        seq_len = len(seq)
-        
         
         if postprocess:
+            seq_len = len(seq)
             if seq_len > self.max_seq_len:
                 seq = seq[:self.max_seq_len]
             
@@ -129,14 +128,23 @@ class TagEncoder():
         return seq
     
     
-    def to_tag(self,Y):
+    def to_tag(self, Y, logger = None):
         # Y: 2-d list
         res = []
         for y in Y:
             seq_tag = []
             for tag_id in y:
                 # 有可能预测为padding
-                tag = self.id2tag[tag_id]
+                # tag = self.id2tag[tag_id]
+                tag = self.id2tag.get(tag_id, 'unk') # start or end tag
+                if tag == 'unk':
+                    if logger:
+                        logger.info('WARNING! found unk tag') # <START> or <STOP>
+                        logger.info('WARNING! tag id : {}'.format(tag_id))
+                    else:
+                        print('WARNING! found unk tag') # <START> or <STOP>
+                        print('WARNING! tag id : {}'.format(tag_id)) 
+                    tag = 'O'
                 seq_tag.append(tag)
             res.append(seq_tag)
         # 2-d list

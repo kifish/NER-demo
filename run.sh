@@ -1,6 +1,6 @@
 export PYTHONNOUSERSITE=True
 conda activate NER-demo-bert
-CUDA_VISIBLE_DEVICES=3 python src/main.py
+CUDA_VISIBLE_DEVICES=4 python src/main.py
 
 
 jupyter-lab
