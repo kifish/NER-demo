@@ -71,7 +71,7 @@ class NERDataset(Dataset):
             d['input_ids'] = d['input_ids'] + [0] * (block_size - len(d['input_ids'])) 
 
             d['target_ids'] = d['target_ids'][:text_block_size]
-            d['target_ids'] = [0] + d['target_ids'] + [0]
+            d['target_ids'] = [0] + d['target_ids'] + [0] # CLS SEP
             d['target_ids'] = d['target_ids'] + [0] * (block_size - len(d['target_ids'])) # padding token 不需要预测
 
         print('done')

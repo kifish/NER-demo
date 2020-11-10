@@ -23,19 +23,19 @@ class Config():
         self.save_params = self.save_params and (not self.preprocess_only) and self.mode != 'run_test' and self.mode != 'run_val'
 
 
-        self.data_config = {
-            'debug': False,
-            'debug_num_exmaple': None,
-            'block_size': 30,    
-            'verbose': True,
-        }
-                
         # self.data_config = {
-        #     'debug': True,
-        #     'debug_num_exmaple': 1000,
+        #     'debug': False,
+        #     'debug_num_exmaple': None,
         #     'block_size': 30,    
         #     'verbose': True,
         # }
+                
+        self.data_config = {
+            'debug': True,
+            'debug_num_exmaple': 1000,
+            'block_size': 30,    
+            'verbose': True,
+        }
         
         self.dataset = NERDataset 
         self.predict_dataset = NERDatasetInference
@@ -52,7 +52,7 @@ class Config():
         self.test_data_config['file_path'] = 'data/test.txt'
         self.test_data_config['block_size'] = 102
 
-
+        self.use_crf_lib = True
         # train config
         self.sample_train_data = False
         self.shuffle_on_the_fly = True
@@ -87,7 +87,7 @@ class Config():
 
         # save and log
         run_name = None
-        run_index = 3
+        run_index = 7
         if run_name is None:
             run_name = 'run{}'.format(run_index)
         self.save_dir = 'records/simple/{}'.format(run_name)

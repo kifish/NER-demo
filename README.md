@@ -4,7 +4,6 @@
 https://docs.google.com/document/d/e/2PACX-1vTFWjz1j8JQa7lmfl8PNfRc8X_fZ--3yUkeZbYeDqAn2NouBlhO9iKgfzO1uJnaLv8nJcsr61u29ioP/pub
 
 
-
 ## Method
 1.HMM  
 https://github.com/kifish/NER-demo/tree/hmm  

@@ -84,6 +84,7 @@ def load_data(path):
 class TagEncoder():
     def __init__(self, max_len = 100):
         self.max_seq_len = max_len # 不包括CLS和SEP
+        self.block_size = self.max_seq_len + 2 # 这样就与target_ids的长度对齐了
         self.tags  = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER', 'O'] # 7
         self.tag2id = {tag : idx + 1 for idx,tag in enumerate(self.tags)}
         self.id2tag = {idx + 1 : tag for idx,tag in enumerate(self.tags)}
@@ -128,7 +129,7 @@ class TagEncoder():
         return seq
     
     
-    def to_tag(self, Y, logger = None):
+    def to_tag(self, Y, logger = None, padding = False):
         # Y: 2-d list
         res = []
         for y in Y:
@@ -145,13 +146,19 @@ class TagEncoder():
                         print('WARNING! found unk tag') # <START> or <STOP>
                         print('WARNING! tag id : {}'.format(tag_id)) 
                     tag = 'O'
+                
                 seq_tag.append(tag)
+                
+            if padding: # 这里的padding策略比较特殊
+                # CLS 和 SEP占了2个位置，但是输入是非0的，因此没有被mask, 只是tag是padding
+                # 因此crf会解码出真实长度的tag序列, 包括 CLS 和 SEP
+                seq_tag = seq_tag + (self.block_size - len(seq_tag)) * ['padding']
+                # 因此CRF的实现比较完美地实现了mask。            
+            assert len(seq_tag) == 102
             res.append(seq_tag)
         # 2-d list
         return res
     
-    
-
 def load_processed_data(path = '../data/processed_test.txt'):
     x = []
     with open(path,'r',encoding='utf8') as f:
@@ -201,9 +208,9 @@ def eval(y_test, pred , y_test_ids = None, pred_ids = None, tag_encoder = None):
     # 去掉padding
     new_y_test = []
     new_pred = []
-    single_pred = []
-    single_test = []
     for i, seq in enumerate(y_test):
+        single_pred = []
+        single_test = []
         for j, tag in enumerate(seq):
             if j == 0: # 第一个位置是[CLS]对应的padding
                 continue
@@ -215,8 +222,7 @@ def eval(y_test, pred , y_test_ids = None, pred_ids = None, tag_encoder = None):
                 
         new_y_test.append(single_test)
         new_pred.append(single_pred)
-        single_pred = []
-        single_test = []
+
         
     y_test = new_y_test
     pred = new_pred
@@ -248,6 +254,7 @@ def eval(y_test, pred , y_test_ids = None, pred_ids = None, tag_encoder = None):
     
     
     # 2年后, 接口变了...
+    # input: ids
     result2 = metrics.flat_classification_report(
         y_test_ids, pred_ids, labels = inclued_labels, target_names = target_names, digits=4, output_dict = True
     )

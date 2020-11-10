@@ -9,6 +9,8 @@ pip install transformers==3.3.1
 pip install seqeval
 pip install sklearn-crfsuite==0.3.6
 conda install tensorboard -y
+pip install pytorch-crf
+
 
 
 conda install -c conda-forge jupyterlab

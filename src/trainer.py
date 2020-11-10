@@ -499,7 +499,7 @@ class Trainer_v2:
         # tokenizer
         self.tokenizer =  AutoTokenizer.from_pretrained(config.base_model_name, cache_dir = config.cache_dir)
         config.logger.info('vocab size : {}'.format(len(self.tokenizer)))
-        
+        self.use_crf_lib = config.use_crf_lib
         self.tag_encoder = TagEncoder()
         
         d = {'tokenizer': self.tokenizer}
@@ -812,7 +812,7 @@ class Trainer_v2:
                 the_real_num_target_id = mask.sum().item()
                 
                 b_score, b_tag_seq = self.model.batch_forward(input_ids, attention_mask = attention_mask) 
-                # b_score: tensor
+                # b_score: tensor or None
                 # b_tag_seq: 2-d list      
                 y_test += target_ids.cpu().numpy().tolist()
                 pred += b_tag_seq
@@ -869,8 +869,17 @@ class Trainer_v2:
 
     def eval(self, y_test_ids, pred_ids):
         # both 2-d list
-        y_test = self.tag_encoder.to_tag(y_test_ids, logger = self.config.logger) # 模型一开始会全部预测为O
-        pred = self.tag_encoder.to_tag(pred_ids, logger = self.config.logger)
+        # print(len(y_test_ids))
+        # print(len(pred_ids))
+        # print('-'*30)
+        # print(len(y_test_ids[0])) # 102
+        # print(len(pred_ids[0])) # 23
+        # 0 + 23个7 + 0
+        
+        y_test = self.tag_encoder.to_tag(y_test_ids, logger = self.config.logger, padding = False) 
+        pred = self.tag_encoder.to_tag(pred_ids, logger = self.config.logger, padding = self.use_crf_lib) # 模型一开始会全部预测为O
+        # padding 
+        pred_ids = self.tag_encoder.to_ids(pred)
         return eval(y_test, pred, y_test_ids, pred_ids)
     
     
