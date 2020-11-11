@@ -417,9 +417,29 @@ class Trainer:
 
 
     def eval(self, y_test_ids, pred_ids):
-        y_test = self.tag_encoder.to_tag(y_test_ids) # 模型一开始会全部预测为O
-        pred = self.tag_encoder.to_tag(pred_ids)
-        return eval(y_test, pred, y_test_ids, pred_ids)
+        
+        # # 去掉true_tag里的padding, 否则会影响评测结果
+        new_y_test_ids = []
+        new_pred_ids = []
+        for i, seq in enumerate(y_test_ids):
+            single_pred = []
+            single_test = []
+            for j, true_tag in enumerate(seq):
+                if j == 0: # 第一个位置是[CLS]对应的padding
+                    continue
+                if true_tag == 0:
+                    break
+                else: # 只包含CLS SEP之间的tag序列
+                    single_pred.append(pred_ids[i][j])
+                    single_test.append(true_tag)
+                    
+            new_y_test_ids.append(single_test)
+            new_pred_ids.append(single_pred)
+        
+        y_test = self.tag_encoder.to_tag(new_y_test_ids) # 模型一开始会全部预测为O
+        pred = self.tag_encoder.to_tag(new_pred_ids)
+        
+        return eval(y_test, pred, new_y_test_ids, new_pred_ids)
     
     # todo
     def predict(self, data_loader):
@@ -589,10 +609,12 @@ class Trainer_v2:
         # 这一版的crf会把padding截断, 因此要重新把padding补齐
         
         # pred = [tag_id for seq in pred for tag_id in seq] # -> 1-d list
+        
         new_pred = []
         for seq in pred:
             new_pred += seq + (block_size - len(seq)) * [0]
         pred = new_pred
+        
         real_padding_ratio = sum(map(lambda x: x == 0, label)) / len(label)
         pred_padding_ratio = sum(map(lambda x: x == 0, pred)) / len(pred)
         
@@ -883,12 +905,23 @@ class Trainer_v2:
         # print(len(y_test_ids[0])) # 102
         # print(len(pred_ids[0])) # 23
         # 0 + 23个7 + 0
-        y_test = self.tag_encoder.to_tag(y_test_ids, logger = self.config.logger, padding = False) 
-        pred = self.tag_encoder.to_tag(pred_ids, logger = self.config.logger, padding = self.use_crf_lib) # 模型一开始会全部预测为O
-        # padding 
-        pred_ids = self.tag_encoder.to_ids(pred)
-        return eval(y_test, pred, y_test_ids, pred_ids)
-    
+        # y_test = self.tag_encoder.to_tag(y_test_ids, logger = self.config.logger, padding = False) 
+        # pred = self.tag_encoder.to_tag(pred_ids, logger = self.config.logger, padding = self.use_crf_lib) # 模型一开始会全部预测为O
+        # # padding 
+        # pred_ids = self.tag_encoder.to_ids(pred)
+        
+        # 只传入真实序列用于评测
+        real_y_test_ids = []
+        real_pred_ids = [] # 去掉 CLS 和 SEP
+        for i in range(len(pred_ids)):
+            the_real_pred_ids = pred_ids[i][1:-1]
+            the_real_seq_len = len(the_real_pred_ids)
+            real_pred_ids.append(the_real_pred_ids)
+            real_y_test_ids.append(y_test_ids[i][1:1+the_real_seq_len])
+        
+        real_y_test = self.tag_encoder.to_tag(real_y_test_ids, logger = self.config.logger, padding = False)
+        pred = self.tag_encoder.to_tag(real_pred_ids, logger = self.config.logger, padding = False)
+        return eval(real_y_test, pred, real_y_test_ids, real_pred_ids)
     
     # todo
     def predict(self, data_loader):

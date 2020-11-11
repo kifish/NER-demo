@@ -154,7 +154,8 @@ class TagEncoder():
                 seq_tag = seq_tag + (self.block_size - len(seq_tag)) * ['padding']
                 # 因此CRF的实现比较完美地实现了mask。  
                           
-            assert len(seq_tag) == self.block_size
+            # assert len(seq_tag) == self.block_size
+            
             res.append(seq_tag)
         # 2-d list
         return res
@@ -205,27 +206,27 @@ def eval(y_test, pred , y_test_ids = None, pred_ids = None, tag_encoder = None):
     # print(y_test[:10])
     # print(pred[:10])
     
-    # 去掉padding
-    new_y_test = []
-    new_pred = []
-    for i, seq in enumerate(y_test):
-        single_pred = []
-        single_test = []
-        for j, tag in enumerate(seq):
-            if j == 0: # 第一个位置是[CLS]对应的padding
-                continue
-            if tag == 'padding':
-                break
-            else:
-                single_pred.append(pred[i][j])
-                single_test.append(tag)
+    # # 去掉true_tag里的padding, 否则会影响评测结果
+    # new_y_test = []
+    # new_pred = []
+    # for i, seq in enumerate(y_test):
+    #     single_pred = []
+    #     single_test = []
+    #     for j, true_tag in enumerate(seq):
+    #         if j == 0: # 第一个位置是[CLS]对应的padding
+    #             continue
+    #         if true_tag == 'padding':
+    #             break
+    #         else: # 只包含CLS SEP之间的tag序列
+    #             single_pred.append(pred[i][j])
+    #             single_test.append(true_tag)
                 
-        new_y_test.append(single_test)
-        new_pred.append(single_pred)
+    #     new_y_test.append(single_test)
+    #     new_pred.append(single_pred)
 
-        
-    y_test = new_y_test
-    pred = new_pred
+
+    # y_test = new_y_test
+    # pred = new_pred
     
     # print('-'*30) 
     # print(y_test)
@@ -244,14 +245,14 @@ def eval(y_test, pred , y_test_ids = None, pred_ids = None, tag_encoder = None):
     if y_test_ids is None and tag_encoder is None:
         tag_encoder = TagEncoder()
         
-    target_names = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER']
-    inclued_labels = list(range(1, 7)) # 1-6
-    
     if y_test_ids is None:
         y_test_ids = tag_encoder.to_ids(y_test) #  [[int]]
     if pred_ids is None:
         pred_ids = tag_encoder.to_ids(pred) #  [[int]]
     
+    
+    target_names = ['B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-PER', 'I-PER']
+    inclued_labels = list(range(1, 7)) # 1-6
     
     # 2年后, 接口变了...
     # input: ids

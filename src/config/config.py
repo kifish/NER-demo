@@ -15,7 +15,7 @@ class Config():
         
         self.trainer = Trainer
         self.model = BertSoftmaxForNER
-        self.mode = 'run_all'
+        self.mode = 'run_val'
         
         self.infer_times = 1 
         self.save_params = True

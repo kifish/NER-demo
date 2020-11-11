@@ -34,6 +34,7 @@ bert-softmax
 
 https://github.com/kifish/NER-demo/blob/bert/src/config/config.py
 
+
 验证集的效果如下: (测试集无label)
 ```
               precision    recall  f1-score   support
@@ -48,19 +49,20 @@ weighted avg     0.8938    0.8476    0.8700      6195
 
               precision    recall  f1-score   support
 
-       B-LOC     0.4620    0.8978    0.6101      2877
-       I-LOC     0.5869    0.9342    0.7209      4394
-       B-ORG     0.1881    0.7941    0.3042      1331
-       I-ORG     0.4646    0.8739    0.6066      5670
-       B-PER     0.2041    0.9042    0.3331      1973
-       I-PER     0.5518    0.9823    0.7066      3851
+       B-LOC     0.9595    0.8978    0.9276      2877
+       I-LOC     0.9294    0.9342    0.9318      4394
+       B-ORG     0.9313    0.7941    0.8573      1331
+       I-ORG     0.9463    0.8739    0.9087      5670
+       B-PER     0.9775    0.9042    0.9394      1973
+       I-PER     0.9422    0.9823    0.9619      3851
 
-   micro avg     0.4108    0.9090    0.5659     20096
-   macro avg     0.4096    0.8978    0.5469     20096
-weighted avg     0.4638    0.9090    0.6044     20096
+   micro avg     0.9455    0.9090    0.9269     20096
+   macro avg     0.9477    0.8978    0.9211     20096
+weighted avg     0.9458    0.9090    0.9263     20096
 ```
 
 
+bert-crf
 https://github.com/kifish/NER-demo/blob/bert/src/config/config_v2.py
 
 验证集的效果如下: (测试集无label)
@@ -88,6 +90,21 @@ weighted avg     0.8836    0.7971    0.8373      6195
    macro avg     0.9381    0.8745    0.9032     20096
 weighted avg     0.9338    0.8901    0.9097     20096
 ```
+
+
+```
+
+	            precision	   recall    f1-score	   support
+BERT              0.9458      0.9090      0.9263         6195
+BERT-CRF          0.9338      0.8901      0.9097         6195
+BiLSTM-CRF	      0.8616	   0.7138	   0.7806	      6181
+BiLSTM-CNN-CRF	   0.8406	   0.7185	   0.7686	      6181
+CRF	            0.8420	   0.6279	   0.7170	      6181
+BiLSTM-viterbi	   0.8512	   0.5700	   0.6809	      6181
+HMM	            0.4911	   0.4341	   0.4479	      6181
+```
+
+注: bert做数据预处理的实现和之前的模型不一样, 有一些出入, 导致support有差异, 待对齐。
 
 
 ### Analysis
