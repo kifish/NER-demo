@@ -1,5 +1,4 @@
 import re,os
-from collections import defaultdict
 import numpy as np
 from functools import reduce
 from sklearn_crfsuite import metrics
@@ -153,8 +152,9 @@ class TagEncoder():
                 # CLS 和 SEP占了2个位置，但是输入是非0的，因此没有被mask, 只是tag是padding
                 # 因此crf会解码出真实长度的tag序列, 包括 CLS 和 SEP
                 seq_tag = seq_tag + (self.block_size - len(seq_tag)) * ['padding']
-                # 因此CRF的实现比较完美地实现了mask。            
-            assert len(seq_tag) == 102
+                # 因此CRF的实现比较完美地实现了mask。  
+                          
+            assert len(seq_tag) == self.block_size
             res.append(seq_tag)
         # 2-d list
         return res

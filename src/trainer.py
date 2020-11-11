@@ -1,4 +1,5 @@
 import json
+from numpy.core.shape_base import block
 import torch, time, os
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -500,7 +501,8 @@ class Trainer_v2:
         self.tokenizer =  AutoTokenizer.from_pretrained(config.base_model_name, cache_dir = config.cache_dir)
         config.logger.info('vocab size : {}'.format(len(self.tokenizer)))
         self.use_crf_lib = config.use_crf_lib
-        self.tag_encoder = TagEncoder()
+        val_block_size = config.val_data_config['block_size']
+        self.tag_encoder = TagEncoder(val_block_size - 2)
         
         d = {'tokenizer': self.tokenizer}
         # data
@@ -583,6 +585,8 @@ class Trainer_v2:
         label = label.cpu().detach().numpy().tolist() # list
         label = [tag_id for seq in label for tag_id in seq] # -> 1-d list
         
+        # 这一版的crf会把padding截断, 因此要重新把padding补齐
+        
         pred = [tag_id for seq in pred for tag_id in seq] # -> 1-d list
 
         real_padding_ratio = sum(map(lambda x: x == 0, label)) / len(label)
@@ -590,7 +594,7 @@ class Trainer_v2:
         
         correct = [ p == t for p,t in zip(pred, label)]
         if len(correct):
-            raw_acc = sum(correct) / len(correct) # 没做mask;里面有很多padding tag; 而模型一开始会全部预测为O, 之后会预测为实体的tag,基本不会预测为padding tag; 因此raw_acc会很低
+            raw_acc = sum(correct) / len(correct) 
         else:
             raw_acc = 0
         
@@ -618,7 +622,7 @@ class Trainer_v2:
         else:
             pure_target_acc = 0
         
-        return raw_acc, target_acc, pure_target_acc,real_padding_ratio,pred_padding_ratio
+        return raw_acc, target_acc, pure_target_acc, real_padding_ratio, pred_padding_ratio
     
 
     def train(self, train_data_loader, val_data_loader):
@@ -875,7 +879,6 @@ class Trainer_v2:
         # print(len(y_test_ids[0])) # 102
         # print(len(pred_ids[0])) # 23
         # 0 + 23个7 + 0
-        
         y_test = self.tag_encoder.to_tag(y_test_ids, logger = self.config.logger, padding = False) 
         pred = self.tag_encoder.to_tag(pred_ids, logger = self.config.logger, padding = self.use_crf_lib) # 模型一开始会全部预测为O
         # padding 

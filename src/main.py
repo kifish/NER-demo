@@ -3,8 +3,8 @@ import torch
 import numpy as np
 import random
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'  # for debug
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = '1'  # for debug
 
 def main():
     # fix seed

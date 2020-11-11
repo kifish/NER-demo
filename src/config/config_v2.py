@@ -14,7 +14,7 @@ class Config():
         self.base_model_name = 'bert-base-chinese'
         
         self.trainer = Trainer_v2
-        self.model = BertCRFForNER
+        self.model = BertCRFForNER_v3
         self.mode = 'run_all'
         
         self.infer_times = 1 
@@ -23,19 +23,19 @@ class Config():
         self.save_params = self.save_params and (not self.preprocess_only) and self.mode != 'run_test' and self.mode != 'run_val'
 
 
-        # self.data_config = {
-        #     'debug': False,
-        #     'debug_num_exmaple': None,
-        #     'block_size': 30,    
-        #     'verbose': True,
-        # }
-                
         self.data_config = {
-            'debug': True,
-            'debug_num_exmaple': 1000,
+            'debug': False,
+            'debug_num_exmaple': None,
             'block_size': 30,    
             'verbose': True,
         }
+                
+        # self.data_config = {
+        #     'debug': True,
+        #     'debug_num_exmaple': 1000,
+        #     'block_size': 30,    
+        #     'verbose': True,
+        # }
         
         self.dataset = NERDataset 
         self.predict_dataset = NERDatasetInference
@@ -75,19 +75,19 @@ class Config():
         self.init_clip_max_norm = 1.0
         
         self.num_epoch = 20
-        self.batch_size = 64 
+        self.batch_size = 256 
         # batch_size is the total batch_size when use_multi_gpus is set as True
         # 多卡情况下须用偶数, 否则会报错。且需要drop掉最后一个batch(如果最后一个batch的样本数为奇数)
 
         # print and save
         self.print_every = 5
-        self.val_every = 10  # 根据batch size变化
+        self.val_every = 100  # 根据batch size变化
         self.force_save_every = None
         self.val_num = None
 
         # save and log
         run_name = None
-        run_index = 7
+        run_index = 4
         if run_name is None:
             run_name = 'run{}'.format(run_index)
         self.save_dir = 'records/simple/{}'.format(run_name)
