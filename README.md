@@ -61,6 +61,34 @@ weighted avg     0.4638    0.9090    0.6044     20096
 ```
 
 
+https://github.com/kifish/NER-demo/blob/bert/src/config/config_v2.py
+
+验证集的效果如下: (测试集无label)
+```
+              precision    recall  f1-score   support
+
+         LOC     0.9102    0.8669    0.8880      2877
+         ORG     0.8149    0.7380    0.7745      1336
+         PER     0.8912    0.7356    0.8060      1982
+
+   micro avg     0.8840    0.7971    0.8383      6195
+   macro avg     0.8721    0.7802    0.8228      6195
+weighted avg     0.8836    0.7971    0.8373      6195
+
+              precision    recall  f1-score   support
+
+       B-LOC     0.9619    0.8863    0.9226      2877
+       I-LOC     0.9295    0.9060    0.9176      4394
+       B-ORG     0.9276    0.8084    0.8639      1331
+       I-ORG     0.9337    0.8670    0.8991      5670
+       B-PER     0.9793    0.7922    0.8759      1973
+       I-PER     0.8967    0.9873    0.9398      3851
+
+   micro avg     0.9319    0.8901    0.9105     20096
+   macro avg     0.9381    0.8745    0.9032     20096
+weighted avg     0.9338    0.8901    0.9097     20096
+```
+
 
 ### Analysis
 Todo

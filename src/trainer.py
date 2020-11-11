@@ -583,12 +583,16 @@ class Trainer_v2:
         # 0是padding; 7是O
 
         label = label.cpu().detach().numpy().tolist() # list
+        block_size = len(label[0])
         label = [tag_id for seq in label for tag_id in seq] # -> 1-d list
         
         # 这一版的crf会把padding截断, 因此要重新把padding补齐
         
-        pred = [tag_id for seq in pred for tag_id in seq] # -> 1-d list
-
+        # pred = [tag_id for seq in pred for tag_id in seq] # -> 1-d list
+        new_pred = []
+        for seq in pred:
+            new_pred += seq + (block_size - len(seq)) * [0]
+        pred = new_pred
         real_padding_ratio = sum(map(lambda x: x == 0, label)) / len(label)
         pred_padding_ratio = sum(map(lambda x: x == 0, pred)) / len(pred)
         
